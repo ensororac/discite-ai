@@ -1,0 +1,156 @@
+
+{
+  "scenarios": [
+    {
+      "id": "scenario-1",
+      "prompt": "The capital of France is",
+      "description": "This scenario demonstrates a high-confidence prediction where the model has a very strong inclination towards a single correct answer based on world knowledge.",
+      "topTokens": [
+        { "token": "Paris", "probability": 0.85, "color": "blue" },
+        { "token": "London", "probability": 0.05, "color": "purple" },
+        { "token": "Berlin", "probability": 0.03, "color": "green" },
+        { "token": "Rome", "probability": 0.02, "color": "orange" },
+        { "token": "Madrid", "probability": 0.01, "color": "pink" },
+        { "token": "Tokyo", "probability": 0.01, "color": "teal" },
+        { "token": "Lyon", "probability": 0.005, "color": "blue" },
+        { "token": "Nice", "probability": 0.005, "color": "purple" }
+      ],
+      "chosenToken": "Paris",
+      "continuations": [
+        "The capital of France is Paris.",
+        "The capital of France is Paris, a beautiful city.",
+        "The capital of France is Paris, known for its art and culture."
+      ]
+    },
+    {
+      "id": "scenario-2",
+      "prompt": "The best sport is",
+      "description": "This scenario illustrates an ambiguous prediction where multiple words have nearly equal probabilities, reflecting subjective opinion rather than a single factual answer.",
+      "topTokens": [
+        { "token": "football", "probability": 0.20, "color": "green" },
+        { "token": "basketball", "probability": 0.18, "color": "orange" },
+        { "token": "soccer", "probability": 0.17, "color": "pink" },
+        { "token": "swimming", "probability": 0.15, "color": "teal" },
+        { "token": "tennis", "probability": 0.10, "color": "blue" },
+        { "token": "running", "probability": 0.08, "color": "purple" },
+        { "token": "hockey", "probability": 0.05, "color": "green" },
+        { "token": "cycling", "probability": 0.05, "color": "orange" }
+      ],
+      "chosenToken": "football",
+      "continuations": [
+        "The best sport is football, a global phenomenon.",
+        "The best sport is basketball, requiring skill and teamwork.",
+        "The best sport is soccer, enjoyed by millions worldwide."
+      ]
+    },
+    {
+      "id": "scenario-3",
+      "prompt": "She picked up her guitar and began to",
+      "description": "This scenario shows a creative or unexpected prediction, where the model generates a valid but perhaps less obvious continuation, showcasing its generative capabilities beyond common phrases.",
+      "topTokens": [
+        { "token": "shred", "probability": 0.30, "color": "pink" },
+        { "token": "play", "probability": 0.25, "color": "teal" },
+        { "token": "strum", "probability": 0.15, "color": "blue" },
+        { "token": "compose", "probability": 0.10, "color": "purple" },
+        { "token": "improvise", "probability": 0.08, "color": "green" },
+        { "token": "sing", "probability": 0.05, "color": "orange" },
+        { "token": "tune", "probability": 0.03, "color": "pink" },
+        { "token": "rock", "probability": 0.02, "color": "teal" }
+      ],
+      "chosenToken": "shred",
+      "continuations": [
+        "She picked up her guitar and began to shred a complex solo.",
+        "She picked up her guitar and began to play a soft melody.",
+        "She picked up her guitar and began to strum a new song."
+      ]
+    },
+    {
+      "id": "scenario-4",
+      "prompt": "Despite the rain, the students decided to",
+      "description": "This scenario highlights the model's grammar and syntax awareness, choosing a verb that correctly completes the sentence structure while making logical sense.",
+      "topTokens": [
+        { "token": "play", "probability": 0.40, "color": "purple" },
+        { "token": "go", "probability": 0.25, "color": "green" },
+        { "token": "stay", "probability": 0.15, "color": "orange" },
+        { "token": "study", "probability": 0.08, "color": "pink" },
+        { "token": "run", "probability": 0.05, "color": "teal" },
+        { "token": "walk", "probability": 0.03, "color": "blue" },
+        { "token": "sing", "probability": 0.02, "color": "purple" },
+        { "token": "eat", "probability": 0.02, "color": "green" }
+      ],
+      "chosenToken": "play",
+      "continuations": [
+        "Despite the rain, the students decided to play outside.",
+        "Despite the rain, the students decided to go to the park.",
+        "Despite the rain, the students decided to stay inside."
+      ]
+    },
+    {
+      "id": "scenario-5",
+      "prompt": "Mars is known as the",
+      "description": "This scenario demonstrates the model's ability to utilize world knowledge and factual information to predict the next word accurately.",
+      "topTokens": [
+        { "token": "Red", "probability": 0.70, "color": "blue" },
+        { "token": "fourth", "probability": 0.10, "color": "purple" },
+        { "token": "planet", "probability": 0.08, "color": "green" },
+        { "token": "god", "probability": 0.05, "color": "orange" },
+        { "token": "Martian", "probability": 0.03, "color": "pink" },
+        { "token": "rocky", "probability": 0.01, "color": "teal" },
+        { "token": "dusty", "probability": 0.01, "color": "blue" },
+        { "token": "cold", "probability": 0.01, "color": "purple" }
+      ],
+      "chosenToken": "Red",
+      "continuations": [
+        "Mars is known as the Red Planet.",
+        "Mars is known as the fourth planet from the Sun.",
+        "Mars is known as the Roman god of war."
+      ]
+    },
+    {
+      "id": "scenario-6",
+      "prompt": "Don't count your chickens before they",
+      "description": "This scenario showcases the model's ability to complete common idioms or phrases, indicating its understanding of cultural and linguistic patterns.",
+      "topTokens": [
+        { "token": "hatch", "probability": 0.88, "color": "teal" },
+        { "token": "grow", "probability": 0.04, "color": "blue" },
+        { "token": "fly", "probability": 0.03, "color": "purple" },
+        { "token": "lay", "probability": 0.02, "color": "green" },
+        { "token": "eat", "probability": 0.01, "color": "orange" },
+        { "token": "run", "probability": 0.01, "color": "pink" },
+        { "token": "sing", "probability": 0.005, "color": "teal" },
+        { "token": "sleep", "probability": 0.005, "color": "blue" }
+      ],
+      "chosenToken": "hatch",
+      "continuations": [
+        "Don't count your chickens before they hatch.",
+        "Don't count your chickens before they hatch, it's an old saying.",
+        "Don't count your chickens before they hatch, be patient."
+      ]
+    }
+  ],
+  "temperatureExamples": {
+    "prompt": "The weather today is",
+    "examples": [
+      {
+        "temperature": 0.1,
+        "chosenToken": "sunny",
+        "description": "At low temperatures, the model favors the most probable word, leading to predictable and less varied outputs."
+      },
+      {
+        "temperature": 0.5,
+        "chosenToken": "warm",
+        "description": "As temperature slightly increases, the model considers a wider range of high-probability words, offering some variation."
+      },
+      {
+        "temperature": 1.0,
+        "chosenToken": "unpredictable",
+        "description": "With a neutral temperature, the model balances common sense with creativity, producing more diverse yet still reasonable words."
+      },
+      {
+        "temperature": 1.5,
+        "chosenToken": "sparkling",
+        "description": "High temperatures encourage highly creative and unexpected word choices, even if less probable, leading to surprising outputs."
+      }
+    ]
+  }
+}
