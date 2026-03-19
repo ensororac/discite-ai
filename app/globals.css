@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0e1a;
+  --foreground: #e8eaf0;
+  --accent: #4f8ef7;
+  --accent-hover: #6fa3ff;
+  --card: #111827;
+  --card-border: #1f2937;
+  --muted: #6b7280;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans, system-ui, sans-serif);
+  min-height: 100vh;
+}
+
+/* Token highlight colours for M1 */
+.token-color-0 { background: #3b4fd8; }
+.token-color-1 { background: #7c3aed; }
+.token-color-2 { background: #be185d; }
+.token-color-3 { background: #b45309; }
+.token-color-4 { background: #047857; }
+.token-color-5 { background: #0369a1; }
+.token-color-6 { background: #7e22ce; }
+.token-color-7 { background: #9f1239; }
