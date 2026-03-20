@@ -25,7 +25,7 @@ const modules = [
     emoji: "🗺️",
     color: "from-purple-600 to-purple-800",
     border: "border-purple-700",
-    available: false,
+    available: true,
     bands: ["5–6", "7–8", "9–10"],
   },
   {

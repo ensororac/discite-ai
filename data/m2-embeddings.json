@@ -1,0 +1,34 @@
+{
+  "wordPairs": [
+    {
+      "word1": "cat",
+      "word2": "kitten",
+      "similarity": 0.95,
+      "explanation": "'Kitten' is simply a young 'cat' — their meanings are almost identical, so their embedding vectors sit extremely close together."
+    },
+    {
+      "word1": "happy",
+      "word2": "joyful",
+      "similarity": 0.90,
+      "explanation": "Both describe a positive emotional state and appear in nearly identical contexts, so the AI places them very close."
+    },
+    {
+      "word1": "doctor",
+      "word2": "hospital",
+      "similarity": 0.78,
+      "explanation": "Not synonyms, but deeply connected — doctors work in hospitals. The AI learns their strong contextual link."
+    },
+    {
+      "word1": "apple",
+      "word2": "company",
+      "similarity": 0.65,
+      "explanation": "Surprising! Because 'Apple' is also a major tech company, the AI learns this connection — one word, two meanings."
+    },
+    {
+      "word1": "pizza",
+      "word2": "delicious",
+      "similarity": 0.82,
+      "explanation": "These words constantly appear together in food discussions, creating a strong associative link even though one is a noun and one an adjective."
+    }
+  ]
+}

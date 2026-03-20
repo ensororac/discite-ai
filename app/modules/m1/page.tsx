@@ -125,8 +125,8 @@ export default function M1Page() {
         </ul>
         <div className="mt-6 pt-6 border-t border-gray-800 flex justify-between items-center">
           <span className="text-sm text-gray-500">Module 1 of 6</span>
-          <Link href="/modules/m5" className="text-sm text-green-400 hover:text-green-300 transition-colors">
-            Try M5: Prediction →
+          <Link href="/modules/m2" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+            Next: M2 Embeddings →
           </Link>
         </div>
       </motion.section>
