@@ -1,13 +1,64 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Tokeniser from "@/components/m1/Tokeniser";
 import TokenStats from "@/components/m1/TokenStats";
+import FeedTheRobot from "@/components/m1/FeedTheRobot";
+import TokenFactory from "@/components/m1/TokenFactory";
+import XPBar from "@/components/XPBar";
+import Byte from "@/components/Byte";
+import StudentLogin from "@/components/StudentLogin";
+import { useStudent } from "@/hooks/useStudent";
+
+type YearBand = "yr3-4" | "yr5-6" | "yr7-8" | "yr9-10";
+
+const YEAR_BANDS: { id: YearBand; label: string; color: string; activeColor: string }[] = [
+  { id: "yr3-4",  label: "Yr 3–4",  color: "bg-gray-800 border-gray-700 text-gray-400",   activeColor: "bg-amber-600 border-amber-500 text-white" },
+  { id: "yr5-6",  label: "Yr 5–6",  color: "bg-gray-800 border-gray-700 text-gray-400",   activeColor: "bg-orange-600 border-orange-500 text-white" },
+  { id: "yr7-8",  label: "Yr 7–8",  color: "bg-gray-800 border-gray-700 text-gray-400",   activeColor: "bg-blue-600 border-blue-500 text-white" },
+  { id: "yr9-10", label: "Yr 9–10", color: "bg-gray-800 border-gray-700 text-gray-400",   activeColor: "bg-purple-600 border-purple-500 text-white" },
+];
+
+const isLowerYear = (band: YearBand) => band === "yr3-4" || band === "yr5-6";
 
 export default function M1Page() {
+  const [yearBand, setYearBand] = useState<YearBand>("yr7-8");
+  const [activityDone, setActivityDone] = useState(false);
+  const student = useStudent();
+
+  const handleXPEarned = async (amount: number) => {
+    if (student.isLoggedIn) {
+      await student.earnXP("m1", yearBand, yearBand === "yr3-4" ? "feed-the-robot" : "token-factory", amount);
+    }
+  };
+
+  const handleComplete = async () => {
+    setActivityDone(true);
+    if (student.isLoggedIn) {
+      await student.earnXP("m1", yearBand, yearBand === "yr3-4" ? "feed-the-robot-complete" : "token-factory-complete", 0);
+    }
+  };
+
   return (
     <main className="min-h-screen px-4 py-10 max-w-4xl mx-auto">
+      {/* Student login modal */}
+      {!student.isLoggedIn && isLowerYear(yearBand) && (
+        <StudentLogin
+          onLogin={student.login}
+          isLoading={student.isLoading}
+          error={student.loginError}
+        />
+      )}
+
+      {/* Byte fixed in lower-left for lower year activities */}
+      {isLowerYear(yearBand) && student.isLoggedIn && (
+        <div className="fixed bottom-6 left-4 z-40 hidden md:block">
+          <Byte emotion={activityDone ? "celebrating" : "happy"} size={80} />
+        </div>
+      )}
+
       {/* Back nav */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -27,7 +78,7 @@ export default function M1Page() {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="mb-10"
+        className="mb-8"
       >
         <div className="flex items-center gap-3 mb-3">
           <span className="text-4xl">🔤</span>
@@ -45,62 +96,141 @@ export default function M1Page() {
         </p>
       </motion.div>
 
-      {/* Concept explainer */}
-      <motion.section
-        initial={{ opacity: 0, y: 16 }}
+      {/* Year band selector */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8"
+        transition={{ delay: 0.15, duration: 0.4 }}
+        className="mb-6"
       >
-        <h2 className="text-lg font-semibold text-white mb-3">
-          What is a token?
-        </h2>
-        <p className="text-gray-300 mb-3">
-          A token is a chunk of text — usually a word, part of a word, or a
-          punctuation mark. AI models don&apos;t read letter by letter or word
-          by word. They read in <em>tokens</em>.
-        </p>
-        <p className="text-gray-300 mb-3">
-          For example, the word <code className="text-blue-300">&ldquo;unhappiness&rdquo;</code> might
-          become three tokens:{" "}
-          <code className="text-blue-300">&ldquo;un&rdquo;</code> +{" "}
-          <code className="text-blue-300">&ldquo;happi&rdquo;</code> +{" "}
-          <code className="text-blue-300">&ldquo;ness&rdquo;</code>. Shorter,
-          common words usually stay as one token.
-        </p>
-        <div className="bg-blue-950 border border-blue-900 rounded-lg p-4 text-sm text-blue-200">
-          💡 <strong>Why does it matter?</strong> AI models have a limit on how
-          many tokens they can process at once — this is called the{" "}
-          <strong>context window</strong>. Understanding tokens helps you
-          understand why AI sometimes &ldquo;forgets&rdquo; earlier parts of a
-          long conversation.
+        <p className="text-sm text-gray-500 mb-3">Select your year level:</p>
+        <div className="flex flex-wrap gap-2">
+          {YEAR_BANDS.map((band) => (
+            <button
+              key={band.id}
+              onClick={() => { setYearBand(band.id); setActivityDone(false); }}
+              className={`min-h-[48px] px-5 py-2 rounded-xl border-2 font-bold text-sm transition-all
+                ${yearBand === band.id ? band.activeColor : band.color + " hover:text-white hover:border-gray-600"}`}
+            >
+              {band.label}
+            </button>
+          ))}
         </div>
-      </motion.section>
+      </motion.div>
 
-      {/* Interactive tokeniser */}
-      <motion.section
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35, duration: 0.5 }}
-        className="mb-8"
-      >
-        <h2 className="text-lg font-semibold text-white mb-4">
-          Try it yourself
-        </h2>
-        <Tokeniser />
-      </motion.section>
+      {/* XP Bar — show when logged in */}
+      {student.isLoggedIn && (
+        <motion.div
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6"
+        >
+          <XPBar xp={student.xp} previousXp={student.previousXp} />
+        </motion.div>
+      )}
 
-      {/* Stats section */}
-      <motion.section
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.5 }}
-        className="mb-10"
-      >
-        <TokenStats />
-      </motion.section>
+      {/* Lower year activities */}
+      <AnimatePresence mode="wait">
+        {yearBand === "yr3-4" && (
+          <motion.div
+            key="yr3-4"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3 }}
+            className="mb-10"
+          >
+            <div className="mb-4">
+              <h2 className="text-lg font-bold text-amber-400 mb-1">🤖 Feed the Robot</h2>
+              <p className="text-gray-400 text-sm">
+                Byte is hungry for words! Tap each word to feed it to Byte and watch the tokens come out.
+              </p>
+            </div>
+            <FeedTheRobot onXPEarned={handleXPEarned} onComplete={handleComplete} />
+          </motion.div>
+        )}
 
-      {/* Key takeaways */}
+        {yearBand === "yr5-6" && (
+          <motion.div
+            key="yr5-6"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3 }}
+            className="mb-10"
+          >
+            <div className="mb-4">
+              <h2 className="text-lg font-bold text-orange-400 mb-1">⚙️ Token Factory</h2>
+              <p className="text-gray-400 text-sm">
+                A factory conveyor belt. Type a sentence, predict the token count, then run the factory!
+              </p>
+            </div>
+            <TokenFactory onXPEarned={handleXPEarned} onComplete={handleComplete} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Yr 7-10 content — keep exactly as before */}
+      {(yearBand === "yr7-8" || yearBand === "yr9-10") && (
+        <>
+          {/* Concept explainer */}
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8"
+          >
+            <h2 className="text-lg font-semibold text-white mb-3">
+              What is a token?
+            </h2>
+            <p className="text-gray-300 mb-3">
+              A token is a chunk of text — usually a word, part of a word, or a
+              punctuation mark. AI models don&apos;t read letter by letter or word
+              by word. They read in <em>tokens</em>.
+            </p>
+            <p className="text-gray-300 mb-3">
+              For example, the word <code className="text-blue-300">&ldquo;unhappiness&rdquo;</code> might
+              become three tokens:{" "}
+              <code className="text-blue-300">&ldquo;un&rdquo;</code> +{" "}
+              <code className="text-blue-300">&ldquo;happi&rdquo;</code> +{" "}
+              <code className="text-blue-300">&ldquo;ness&rdquo;</code>. Shorter,
+              common words usually stay as one token.
+            </p>
+            <div className="bg-blue-950 border border-blue-900 rounded-lg p-4 text-sm text-blue-200">
+              💡 <strong>Why does it matter?</strong> AI models have a limit on how
+              many tokens they can process at once — this is called the{" "}
+              <strong>context window</strong>. Understanding tokens helps you
+              understand why AI sometimes &ldquo;forgets&rdquo; earlier parts of a
+              long conversation.
+            </div>
+          </motion.section>
+
+          {/* Interactive tokeniser */}
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.5 }}
+            className="mb-8"
+          >
+            <h2 className="text-lg font-semibold text-white mb-4">
+              Try it yourself
+            </h2>
+            <Tokeniser />
+          </motion.section>
+
+          {/* Stats section */}
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            className="mb-10"
+          >
+            <TokenStats />
+          </motion.section>
+        </>
+      )}
+
+      {/* Key takeaways — all year levels */}
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
