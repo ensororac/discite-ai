@@ -48,7 +48,7 @@ function saveStored(data: StoredStudent) {
 
 async function apiInit(classCode: string, pin: string, displayName?: string): Promise<{ studentId: string; xp: number; badges: string[] }> {
   try {
-    const res = await fetch("/api/progress/init", {
+    const res = await fetch("https://discite-api.ensororac.workers.dev/progress/init", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ classCode, pin, displayName }),
@@ -65,7 +65,7 @@ async function apiInit(classCode: string, pin: string, displayName?: string): Pr
 
 async function apiEarn(studentId: string, module: string, yearBand: string, activity: string, xp: number): Promise<{ totalXp: number; newBadges: string[] }> {
   try {
-    const res = await fetch("/api/progress/earn", {
+    const res = await fetch("https://discite-api.ensororac.workers.dev/progress/earn", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ studentId, module, yearBand, activity, xp }),
