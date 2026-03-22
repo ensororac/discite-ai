@@ -9,3 +9,5 @@ pages_build_output_dir = ".vercel/output/static"
 binding = "DB"
 database_name = "discite-progress"
 database_id = "1f4ab6b3-2104-4718-8d06-8d088d54ac85"
+
+compatibility_flags = ["nodejs_compat"]
