@@ -37,8 +37,8 @@ const modules = [
     emoji: "🔍",
     color: "from-pink-600 to-pink-800",
     border: "border-pink-700",
-    available: false,
-    bands: ["7–8", "9–10"],
+    available: true,
+    bands: ["3–4", "5–6", "7–8", "9–10"],
   },
   {
     id: "m4",
