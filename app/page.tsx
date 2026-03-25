@@ -5,6 +5,19 @@ import Link from "next/link";
 
 const modules = [
   {
+    id: "m0",
+    title: "Meet AI",
+    subtitle: "Talk to an AI — then learn how it works",
+    description:
+      "Chat with Byte AI, earn badges, and discover the four steps that happen every time AI replies. Start here!",
+    emoji: "👋",
+    color: "from-cyan-600 to-teal-700",
+    border: "border-cyan-700",
+    available: true,
+    bands: ["3–4", "5–6", "7–8", "9–10"],
+    isNew: true,
+  },
+  {
     id: "m1",
     title: "Tokenisation",
     subtitle: "How text becomes numbers",
@@ -112,8 +125,8 @@ export default function Home() {
           Don&apos;t just use AI. Understand it.
         </p>
         <p className="mt-4 text-gray-500 text-sm">
-          Six interactive modules exploring how Large Language Models really work
-          — built for K–10 students.
+          Seven interactive modules exploring how Large Language Models really work
+          — built for K–10 students. Start with Module 0!
         </p>
       </motion.div>
 
@@ -151,14 +164,20 @@ export default function Home() {
 }
 
 function ModuleCard({ mod }: { mod: (typeof modules)[0] }) {
+  const isNew = "isNew" in mod && mod.isNew;
   return (
     <div
       className={`
         h-full rounded-xl border ${mod.border} bg-gray-900 p-6
-        flex flex-col gap-3
+        flex flex-col gap-3 relative
         ${mod.available ? "hover:border-opacity-100 hover:scale-[1.02] transition-transform cursor-pointer" : "opacity-60 cursor-default"}
       `}
     >
+      {isNew && (
+        <span className="absolute top-3 right-3 text-xs bg-cyan-600 text-white font-bold px-2 py-0.5 rounded-full">
+          Start here!
+        </span>
+      )}
       <div className="text-3xl">{mod.emoji}</div>
       <div>
         <h2 className="text-lg font-bold text-white">{mod.title}</h2>
@@ -179,8 +198,8 @@ function ModuleCard({ mod }: { mod: (typeof modules)[0] }) {
         <span className="text-xs text-gray-600 mt-1">Coming soon</span>
       )}
       {mod.available && (
-        <span className="text-xs text-blue-400 font-medium mt-1">
-          Start → 
+        <span className={`text-xs font-medium mt-1 ${isNew ? "text-cyan-400" : "text-blue-400"}`}>
+          {isNew ? "Begin your journey →" : "Start →"}
         </span>
       )}
     </div>

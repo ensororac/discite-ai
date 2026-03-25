@@ -10,6 +10,7 @@ import TokenFactory from "@/components/m1/TokenFactory";
 import XPBar from "@/components/XPBar";
 import Byte from "@/components/Byte";
 import StudentLogin from "@/components/StudentLogin";
+import SpeakButton from "@/components/SpeakButton";
 import { useStudent } from "@/hooks/useStudent";
 
 type YearBand = "yr3-4" | "yr5-6" | "yr7-8" | "yr9-10";
@@ -94,6 +95,12 @@ export default function M1Page() {
           pieces called <strong className="text-white">tokens</strong>. Let&apos;s
           see how that works.
         </p>
+        <div className="mt-3">
+          <SpeakButton
+            text="Before an AI can read your words, it has to break them up into small pieces called tokens. Let's see how that works."
+            theme="blue"
+          />
+        </div>
       </motion.div>
 
       {/* Year band selector */}
@@ -142,9 +149,14 @@ export default function M1Page() {
           >
             <div className="mb-4">
               <h2 className="text-lg font-bold text-amber-400 mb-1">🤖 Feed the Robot</h2>
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-400 text-sm mb-2">
                 Byte is hungry for words! Tap each word to feed it to Byte and watch the tokens come out.
               </p>
+              <SpeakButton
+                text="Byte is hungry for words! Tap each word to feed it to Byte and watch the tokens come out."
+                theme="amber"
+                size="xs"
+              />
             </div>
             <FeedTheRobot onXPEarned={handleXPEarned} onComplete={handleComplete} />
           </motion.div>
@@ -161,9 +173,14 @@ export default function M1Page() {
           >
             <div className="mb-4">
               <h2 className="text-lg font-bold text-orange-400 mb-1">⚙️ Token Factory</h2>
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-400 text-sm mb-2">
                 A factory conveyor belt. Type a sentence, predict the token count, then run the factory!
               </p>
+              <SpeakButton
+                text="A factory conveyor belt. Type a sentence, predict the token count, then run the factory!"
+                theme="amber"
+                size="xs"
+              />
             </div>
             <TokenFactory onXPEarned={handleXPEarned} onComplete={handleComplete} />
           </motion.div>
@@ -180,9 +197,16 @@ export default function M1Page() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8"
           >
-            <h2 className="text-lg font-semibold text-white mb-3">
-              What is a token?
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-white">
+                What is a token?
+              </h2>
+              <SpeakButton
+                text="A token is a chunk of text — usually a word, part of a word, or a punctuation mark. AI models don't read letter by letter or word by word. They read in tokens. For example, the word unhappiness might become three tokens: un, happi, and ness. Shorter, common words usually stay as one token. Why does it matter? AI models have a limit on how many tokens they can process at once — this is called the context window. Understanding tokens helps you understand why AI sometimes forgets earlier parts of a long conversation."
+                theme="blue"
+                size="xs"
+              />
+            </div>
             <p className="text-gray-300 mb-3">
               A token is a chunk of text — usually a word, part of a word, or a
               punctuation mark. AI models don&apos;t read letter by letter or word
@@ -237,9 +261,16 @@ export default function M1Page() {
         transition={{ delay: 0.6, duration: 0.5 }}
         className="bg-gray-900 border border-gray-800 rounded-xl p-6"
       >
-        <h2 className="text-lg font-semibold text-white mb-4">
-          What you&apos;ve learned
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-white">
+            What you&apos;ve learned
+          </h2>
+          <SpeakButton
+            text="What you've learned. AI models split text into tokens — not letters, not always whole words. Common words are usually one token; rare or long words get split up. Every token becomes a number that the AI can process mathematically. The total number of tokens determines how much the AI can read at once."
+            theme="green"
+            size="xs"
+          />
+        </div>
         <ul className="space-y-3">
           {[
             "AI models split text into tokens — not letters, not always whole words",
