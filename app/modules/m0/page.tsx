@@ -196,12 +196,14 @@ export default function M0Page() {
   const [askedAboutAI, setAskedAboutAI] = useState(false);
 
   const student = useStudent();
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Scroll to bottom when messages change
+  // Scroll within the chat box only — not the whole page
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = chatContainerRef.current;
+    if (!container) return;
+    container.scrollTop = container.scrollHeight;
   }, [messages, isTyping]);
 
   // Badge unlocks
@@ -395,7 +397,7 @@ export default function M0Page() {
         </div>
 
         {/* Messages */}
-        <div className="bg-gray-950 border-x border-gray-800 h-[360px] overflow-y-auto px-4 py-4 flex flex-col gap-3">
+        <div ref={chatContainerRef} className="bg-gray-950 border-x border-gray-800 h-[360px] overflow-y-auto px-4 py-4 flex flex-col gap-3">
           {messages.map((msg) => (
             <motion.div
               key={msg.id}
@@ -471,7 +473,7 @@ export default function M0Page() {
             )}
           </AnimatePresence>
 
-          <div ref={bottomRef} />
+
         </div>
 
         {/* Input bar */}
