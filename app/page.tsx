@@ -62,8 +62,8 @@ const modules = [
     emoji: "🏗️",
     color: "from-orange-600 to-orange-800",
     border: "border-orange-700",
-    available: false,
-    bands: ["9–10"],
+    available: true,
+    bands: ["3–4", "5–6", "7–8", "9–10"],
   },
   {
     id: "m5",
