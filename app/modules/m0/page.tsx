@@ -114,13 +114,47 @@ const FALLBACK_RESPONSES: string[] = [
   "Ooh, I'd need to think harder about that one! For now, ask me about AI — that's what I know best.",
 ];
 
-function getAIResponse(userMessage: string): { text: string; emotion: ByteEmotion; xp: number } {
+const CHAT_API = "https://discite-api.ensororac.workers.dev/chat";
+
+/**
+ * Hybrid AI response:
+ * 1. Check scripted keywords first (instant, educational, zero latency)
+ * 2. If no keyword match → call Cloudflare AI worker (live LLM)
+ * 3. If worker fails → fall back to scripted fallback message
+ */
+async function getAIResponse(
+  userMessage: string,
+  history: Array<{ role: "user" | "assistant"; content: string }>
+): Promise<{ text: string; emotion: ByteEmotion; xp: number }> {
   const lower = userMessage.toLowerCase();
+
+  // Step 1: scripted keyword match
   for (const entry of SCRIPTED_RESPONSES) {
     if (entry.keywords.some((k) => lower.includes(k))) {
       return { text: entry.response, emotion: entry.emotion, xp: entry.xp ?? 5 };
     }
   }
+
+  // Step 2: live LLM via Cloudflare AI worker
+  try {
+    const res = await fetch(CHAT_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: userMessage, history }),
+      signal: AbortSignal.timeout(8000), // 8s timeout
+    });
+
+    if (res.ok) {
+      const data = await res.json() as { reply?: string };
+      if (data.reply) {
+        return { text: data.reply, emotion: "happy", xp: 8 };
+      }
+    }
+  } catch {
+    // Worker unreachable or timed out — fall through to scripted fallback
+  }
+
+  // Step 3: scripted fallback
   const fallback = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
   return { text: fallback, emotion: "thinking", xp: 3 };
 }
@@ -232,11 +266,11 @@ export default function M0Page() {
   }, [messages, badge1, badge2, askedAboutAI, student]);
 
   const sendMessage = useCallback(
-    (text: string) => {
+    async (text: string) => {
       const trimmed = text.trim();
       if (!trimmed || isTyping) return;
 
-      // Check if they asked about AI
+      // Check if they asked about AI (for badge tracking)
       const lower = trimmed.toLowerCase();
       if (
         lower.includes("how do you work") ||
@@ -249,34 +283,49 @@ export default function M0Page() {
         setAskedAboutAI(true);
       }
 
-      const userMsg: Message = { role: "user", text: trimmed, id: msgCounter };
-      setMsgCounter((c) => c + 1);
+      const currentId = msgCounter;
+      const userMsg: Message = { role: "user", text: trimmed, id: currentId };
+      setMsgCounter((c) => c + 2);
       setMessages((prev) => [...prev, userMsg]);
       setInput("");
       setIsTyping(true);
       setByteEmotion("thinking");
       setByteMessage("Thinking…");
 
-      // Simulate typing delay
-      const { text: aiText, emotion, xp } = getAIResponse(trimmed);
-      const delay = 800 + Math.random() * 600;
+      // Build history for context (last 6 turns, excluding the greeting)
+      setMessages((prev) => {
+        // We just need a snapshot — actual call happens below
+        return prev;
+      });
 
-      setTimeout(() => {
-        const aiMsg: Message = { role: "ai", text: aiText, id: msgCounter + 1 };
-        setMsgCounter((c) => c + 2);
-        setMessages((prev) => [...prev, aiMsg]);
-        setIsTyping(false);
-        setByteEmotion(emotion);
-        setByteMessage(undefined);
+      // Get current messages snapshot for history
+      const historySnapshot = messages
+        .filter((m) => m.id > 0) // skip greeting
+        .slice(-6)
+        .map((m) => ({
+          role: (m.role === "ai" ? "assistant" : "user") as "user" | "assistant",
+          content: m.text,
+        }));
 
-        // Award XP
-        if (student.isLoggedIn) {
-          student.earnXP("m0", "yr3-4", "chat", xp);
-        }
-        setTotalXpEarned((x) => x + xp);
-      }, delay);
+      // Call hybrid AI (async — may hit live LLM or scripted)
+      const { text: aiText, emotion, xp } = await getAIResponse(trimmed, historySnapshot);
+
+      // Small minimum delay so it doesn't feel instant (UX)
+      await new Promise((r) => setTimeout(r, 600));
+
+      const aiMsg: Message = { role: "ai", text: aiText, id: currentId + 1 };
+      setMessages((prev) => [...prev, aiMsg]);
+      setIsTyping(false);
+      setByteEmotion(emotion);
+      setByteMessage(undefined);
+
+      // Award XP
+      if (student.isLoggedIn) {
+        student.earnXP("m0", "yr3-4", "chat", xp);
+      }
+      setTotalXpEarned((x) => x + xp);
     },
-    [isTyping, msgCounter, student]
+    [isTyping, msgCounter, messages, student]
   );
 
   const handleSubmit = (e: React.FormEvent) => {
