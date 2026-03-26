@@ -7,6 +7,7 @@ import TransformerBuilder from "@/components/m4/TransformerBuilder";
 import PipelineSimulator from "@/components/m4/PipelineSimulator";
 import TransformerDiagram from "@/components/m4/TransformerDiagram";
 import LayerExplorer from "@/components/m4/LayerExplorer";
+import NeuralNetworkExplainer from "@/components/m4/NeuralNetworkExplainer";
 import XPBar from "@/components/XPBar";
 import Byte from "@/components/Byte";
 import StudentLogin from "@/components/StudentLogin";
@@ -49,13 +50,6 @@ const YEAR_BANDS: {
 ];
 
 const isLowerYear = (band: YearBand) => band === "yr3-4" || band === "yr5-6";
-
-const KEY_TAKEAWAYS = [
-  "A transformer combines tokenisation, embeddings, attention, and prediction into one pipeline.",
-  "Information passes through many layers — each one refines the model&apos;s understanding.",
-  "Modern AI models like GPT-4 use hundreds of billions of parameters across these layers.",
-  "The transformer architecture, invented in 2017, powers almost every modern AI language model.",
-];
 
 const KEY_TAKEAWAYS_SPEAK =
   "Here is what you have learned. First: A transformer combines tokenisation, embeddings, attention, and prediction into one pipeline. Second: Information passes through many layers — each one refines the model's understanding. Third: Modern AI models like GPT-4 use hundreds of billions of parameters across these layers. Fourth: The transformer architecture, invented in 2017, powers almost every modern AI language model.";
@@ -229,6 +223,16 @@ export default function M4Page() {
       {/* ——— Yr 7-8 and 9-10 content ——— */}
       {(yearBand === "yr7-8" || yearBand === "yr9-10") && (
         <>
+          {/* Neural Network foundation — before transformer detail */}
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="mb-8"
+          >
+            <NeuralNetworkExplainer />
+          </motion.section>
+
           {/* Section 1: What is a transformer */}
           <motion.section
             initial={{ opacity: 0, y: 16 }}
