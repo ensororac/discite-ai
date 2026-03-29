@@ -11,6 +11,7 @@ import XPBar from "@/components/XPBar";
 import Byte from "@/components/Byte";
 import StudentLogin from "@/components/StudentLogin";
 import { useStudent } from "@/hooks/useStudent";
+import SpeakButton from "@/components/SpeakButton";
 
 type YearBand = "yr3-4" | "yr5-6" | "yr7-8" | "yr9-10";
 
@@ -134,6 +135,12 @@ export default function M3Page() {
           <strong className="text-pink-400">attention</strong> to decide which
           words matter most in context.
         </p>
+        <div className="mt-3">
+          <SpeakButton
+            text="When you read a sentence, your brain automatically focuses on the most relevant words to understand meaning. AI does the same thing — using a mechanism called attention to decide which words matter most in context."
+            theme="pink"
+          />
+        </div>
       </motion.div>
 
       {/* Year band selector */}
@@ -240,9 +247,16 @@ export default function M3Page() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8"
           >
-            <h2 className="text-lg font-semibold text-white mb-3">
-              What is the attention mechanism?
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-white">
+                What is the attention mechanism?
+              </h2>
+              <SpeakButton
+                text="What is the attention mechanism? Consider the sentence: 'I sat by the river bank.' Does 'bank' mean a financial institution, or the side of a river? To know, the AI must look at the other words — especially 'river' — and decide which ones matter most. This is exactly what attention does. It lets each word in a sentence look at all the other words and assign a weight — a score representing how relevant each other word is to understanding its meaning in this particular context."
+                theme="pink"
+                size="xs"
+              />
+            </div>
             <p className="text-gray-300 mb-3">
               Consider the sentence: &ldquo;I sat by the river{" "}
               <strong className="text-pink-400">bank</strong>.&rdquo; Does
@@ -266,9 +280,16 @@ export default function M3Page() {
             transition={{ delay: 0.3, duration: 0.5 }}
             className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8"
           >
-            <h2 className="text-lg font-semibold text-white mb-3">
-              Queries, Keys, and Values
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-white">
+                Queries, Keys, and Values
+              </h2>
+              <SpeakButton
+                text="Queries, Keys, and Values. Under the hood, each word is transformed into three vectors. Query: What is this word looking for? Key: What does this word offer to others? Value: What information gets passed on if selected? The attention score between two words is calculated by comparing the Query of one word against the Keys of all others. Higher scores mean more influence."
+                theme="pink"
+                size="xs"
+              />
+            </div>
             <p className="text-gray-300 mb-3">
               Under the hood, each word is transformed into three vectors:
             </p>
@@ -354,15 +375,24 @@ export default function M3Page() {
             className="mb-8"
           >
             <div className="bg-pink-950 border border-pink-900 rounded-xl p-6">
-              <p className="text-pink-200 text-sm">
-                🔦 <strong>Did you know?</strong> GPT-4 uses{" "}
-                <strong>96 attention heads</strong> across{" "}
-                <strong>96 transformer layers</strong>. Each head independently
-                learns to notice different linguistic patterns — some track
-                pronouns, some track verbs and their objects, some detect
-                sentiment. Together they form a rich, multi-dimensional
-                understanding of context.
-              </p>
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-pink-200 text-sm">
+                  🔦 <strong>Did you know?</strong> GPT-4 uses{" "}
+                  <strong>96 attention heads</strong> across{" "}
+                  <strong>96 transformer layers</strong>. Each head independently
+                  learns to notice different linguistic patterns — some track
+                  pronouns, some track verbs and their objects, some detect
+                  sentiment. Together they form a rich, multi-dimensional
+                  understanding of context.
+                </p>
+                <div className="shrink-0">
+                  <SpeakButton
+                    text="Did you know? GPT-4 uses 96 attention heads across 96 transformer layers. Each head independently learns to notice different linguistic patterns — some track pronouns, some track verbs and their objects, some detect sentiment. Together they form a rich, multi-dimensional understanding of context."
+                    theme="pink"
+                    size="xs"
+                  />
+                </div>
+              </div>
             </div>
           </motion.section>
         </>
@@ -375,9 +405,16 @@ export default function M3Page() {
         transition={{ delay: 0.7, duration: 0.5 }}
         className="bg-gray-900 border border-gray-800 rounded-xl p-6"
       >
-        <h2 className="text-lg font-semibold text-white mb-4">
-          What you&apos;ve learned
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-white">
+            What you&apos;ve learned
+          </h2>
+          <SpeakButton
+            text="What you've learned. Attention allows each word to consider all other words when building its meaning. Words are assigned attention weights — higher weights mean more influence on understanding. Queries, Keys, and Values are the mathematical tools that compute these weights. Multi-head attention runs multiple attention patterns simultaneously for richer understanding."
+            theme="pink"
+            size="xs"
+          />
+        </div>
         <ul className="space-y-3">
           {[
             "Attention allows each word to consider all other words when building its meaning.",

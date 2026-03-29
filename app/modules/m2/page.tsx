@@ -11,6 +11,7 @@ import XPBar from "@/components/XPBar";
 import Byte from "@/components/Byte";
 import StudentLogin from "@/components/StudentLogin";
 import { useStudent } from "@/hooks/useStudent";
+import SpeakButton from "@/components/SpeakButton";
 
 type YearBand = "yr3-4" | "yr5-6" | "yr7-8" | "yr9-10";
 
@@ -95,6 +96,12 @@ export default function M2Page() {
           That&apos;s what embeddings do — and words with similar meanings end
           up close together in a special mathematical space.
         </p>
+        <div className="mt-3">
+          <SpeakButton
+            text="Imagine a secret code that turns every word into a list of numbers that captures its meaning. That's what embeddings do — and words with similar meanings end up close together in a special mathematical space."
+            theme="purple"
+          />
+        </div>
       </motion.div>
 
       {/* Year band selector */}
@@ -181,9 +188,16 @@ export default function M2Page() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8"
           >
-            <h2 className="text-lg font-semibold text-white mb-3">
-              What is an embedding vector?
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-white">
+                What is an embedding vector?
+              </h2>
+              <SpeakButton
+                text="What is an embedding vector? Think of an embedding vector as a unique digital fingerprint for a word. It's a list of numbers — like coordinates on a map — that tells the AI what a word means based on how it's used alongside other words. Every word gets its own list of numbers. Those numbers don't describe what the word looks like — they describe its meaning and relationships to everything else in the language."
+                theme="purple"
+                size="xs"
+              />
+            </div>
             <p className="text-gray-300 mb-3">
               Think of an embedding vector as a unique{" "}
               <strong className="text-white">digital fingerprint</strong> for a
@@ -205,9 +219,16 @@ export default function M2Page() {
             transition={{ delay: 0.3, duration: 0.5 }}
             className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8"
           >
-            <h2 className="text-lg font-semibold text-white mb-3">
-              Why are similar words &ldquo;close&rdquo;?
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-white">
+                Why are similar words &ldquo;close&rdquo;?
+              </h2>
+              <SpeakButton
+                text="Why are similar words close? In the AI's numerical meaning space, words aren't just random points. Words that appear in similar situations — or have similar meanings — will naturally have number lists that look very alike. So 'happy' and 'joyful' sit close together, while 'happy' and 'rock' are far apart — just like cities on a real map."
+                theme="purple"
+                size="xs"
+              />
+            </div>
             <p className="text-gray-300 mb-3">
               In the AI&apos;s numerical meaning space, words aren&apos;t just
               random points. Words that appear in similar situations — or have
@@ -244,9 +265,16 @@ export default function M2Page() {
             transition={{ delay: 0.5, duration: 0.5 }}
             className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8"
           >
-            <h2 className="text-lg font-semibold text-white mb-3">
-              Analogy by maths
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-white">
+                Analogy by maths
+              </h2>
+              <SpeakButton
+                text="Analogy by maths. Because words are numbers, the AI can actually do arithmetic with meaning. This lets it understand analogies — relationships between ideas — without ever being explicitly taught them. The famous example: take 'king', subtract 'man', add 'woman' — and the result is closest to 'queen'."
+                theme="purple"
+                size="xs"
+              />
+            </div>
             <p className="text-gray-300 mb-3">
               Because words are numbers, the AI can actually{" "}
               <strong className="text-white">do arithmetic with meaning</strong>.
@@ -272,15 +300,24 @@ export default function M2Page() {
             className="mb-8"
           >
             <div className="bg-purple-950 border border-purple-900 rounded-xl p-6">
-              <p className="text-purple-200 text-sm">
-                🌌 <strong>Did you know?</strong> Real AI embeddings are far more
-                complex than a 2D map. Actual embedding vectors can have{" "}
-                <strong>hundreds or thousands of numbers</strong> — each dimension
-                captures a different subtle aspect of meaning. More dimensions means
-                more ways to represent the fine-grained differences between words.
-                We visualise them in 2D to make sense of them, but the real space
-                is almost unimaginably large.
-              </p>
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-purple-200 text-sm">
+                  🌌 <strong>Did you know?</strong> Real AI embeddings are far more
+                  complex than a 2D map. Actual embedding vectors can have{" "}
+                  <strong>hundreds or thousands of numbers</strong> — each dimension
+                  captures a different subtle aspect of meaning. More dimensions means
+                  more ways to represent the fine-grained differences between words.
+                  We visualise them in 2D to make sense of them, but the real space
+                  is almost unimaginably large.
+                </p>
+                <div className="shrink-0">
+                  <SpeakButton
+                    text="Did you know? Real AI embeddings are far more complex than a 2D map. Actual embedding vectors can have hundreds or thousands of numbers — each dimension captures a different subtle aspect of meaning. More dimensions means more ways to represent the fine-grained differences between words. We visualise them in 2D to make sense of them, but the real space is almost unimaginably large."
+                    theme="purple"
+                    size="xs"
+                  />
+                </div>
+              </div>
             </div>
           </motion.section>
         </>
@@ -293,9 +330,16 @@ export default function M2Page() {
         transition={{ delay: 0.7, duration: 0.5 }}
         className="bg-gray-900 border border-gray-800 rounded-xl p-6"
       >
-        <h2 className="text-lg font-semibold text-white mb-4">
-          What you&apos;ve learned
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-white">
+            What you&apos;ve learned
+          </h2>
+          <SpeakButton
+            text="What you've learned. Embeddings transform words into numerical representations called vectors. Similar words are located closer together in the AI's embedding space. This numerical representation allows AI to understand relationships and analogy through arithmetic. Embeddings are fundamental to how Large Language Models process meaning."
+            theme="purple"
+            size="xs"
+          />
+        </div>
         <ul className="space-y-3">
           {[
             "Embeddings transform words into numerical representations called vectors.",
