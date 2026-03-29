@@ -111,9 +111,11 @@ export default function M5Page() {
           ))}
         </ul>
         <div className="mt-6 pt-6 border-t border-gray-800 flex justify-between items-center">
-          <span className="text-sm text-gray-500">Module 5 of 6</span>
-          <Link href="/modules/m1" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
-            ← Back to M1: Tokenisation
+          <Link href="/modules/m1" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
+            ← M1: Tokenisation
+          </Link>
+          <Link href="/modules/m6" className="text-sm text-teal-400 hover:text-teal-300 transition-colors">
+            Next: M6 Data &amp; Bias →
           </Link>
         </div>
       </motion.section>

@@ -10,7 +10,7 @@ interface SpeakButtonProps {
   /** Optional accessible label */
   label?: string;
   /** Colour theme — default 'blue' */
-  theme?: "blue" | "purple" | "pink" | "amber" | "green";
+  theme?: "blue" | "purple" | "pink" | "amber" | "green" | "teal";
 }
 
 const THEME_CLASSES: Record<string, { idle: string; speaking: string }> = {
@@ -19,6 +19,7 @@ const THEME_CLASSES: Record<string, { idle: string; speaking: string }> = {
   pink:   { idle: "text-pink-400 hover:text-pink-300 border-pink-700 hover:border-pink-500",   speaking: "text-pink-200 border-pink-400 bg-pink-950" },
   amber:  { idle: "text-amber-400 hover:text-amber-300 border-amber-700 hover:border-amber-500", speaking: "text-amber-200 border-amber-400 bg-amber-950" },
   green:  { idle: "text-green-400 hover:text-green-300 border-green-700 hover:border-green-500", speaking: "text-green-200 border-green-400 bg-green-950" },
+  teal:   { idle: "text-teal-400 hover:text-teal-300 border-teal-700 hover:border-teal-500",   speaking: "text-teal-200 border-teal-400 bg-teal-950" },
 };
 
 const SIZE_CLASSES = {

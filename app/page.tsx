@@ -82,11 +82,11 @@ const modules = [
     title: "Data & Bias",
     subtitle: "Where AI learns — and what it picks up",
     description:
-      "Explore how training data shapes what AI knows, believes, and gets wrong — and why it matters for all of us.",
+      "Explore how AI learns from data — and why that can go wrong.",
     emoji: "⚖️",
     color: "from-teal-600 to-teal-800",
     border: "border-teal-700",
-    available: false,
+    available: true,
     bands: ["3–4", "5–6", "7–8", "9–10"],
   },
 ];
