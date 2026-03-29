@@ -29,26 +29,31 @@ const MIRROR_SCENARIOS = [
     id: 1,
     text: "A robot trained only on photos of male doctors keeps thinking female doctors are nurses.",
     isFair: false,
+    reason: "The AI only saw male doctors in its training photos, so it learned to connect 'doctor' with 'male'. It's reflecting a biased dataset — not reality.",
   },
   {
     id: 2,
     text: "An AI learns from books written in English, so it struggles with other languages.",
     isFair: false,
+    reason: "The training data didn't include other languages, so the AI can't serve speakers of those languages fairly. What you leave out of training data matters just as much as what you include.",
   },
   {
     id: 3,
     text: "A face recognition system works well for light skin but not dark skin, because it had fewer dark-skin photos to learn from.",
     isFair: false,
+    reason: "This is representation bias — the training photos didn't include enough diversity. The AI works better for groups it saw more of in training, which can cause real harm.",
   },
   {
     id: 4,
     text: "An AI spell-checker trained on lots of different writing styles works well for everyone.",
     isFair: true,
+    reason: "Because the training data included diverse writing styles, the AI learned to help everyone equally. Diverse, representative data leads to fairer AI!",
   },
   {
     id: 5,
     text: "A job-sorting AI trained on old job applications keeps recommending men for leadership roles.",
     isFair: false,
+    reason: "The old job applications reflected historical bias — most leadership roles went to men back then. The AI learned that pattern and keeps repeating it, even though times have changed.",
   },
 ];
 
@@ -58,22 +63,54 @@ const DETECTIVE_SCENARIOS = [
   {
     id: 1,
     output: 'An AI resume screener ranks "James" 40% higher than "Jamal" for the exact same resume.',
-    explanation: "The AI learned from historical hiring data where bias already existed — it picked up on patterns that associated certain names with success, reflecting real-world discrimination in past hiring decisions.",
+    question: "Why might the training data have caused this?",
+    options: [
+      { id: "a", text: "The AI ran out of memory and made a random error." },
+      { id: "b", text: "The AI learned from historical hiring data where bias already existed — it picked up patterns connecting certain names with success." },
+      { id: "c", text: "The AI preferred shorter names because they load faster." },
+      { id: "d", text: "The resumes were accidentally swapped in the system." },
+    ],
+    correctId: "b",
+    explanation: "Historical hiring data reflects real-world discrimination. The AI learned that certain names were statistically associated with being hired — not because of ability, but because of past bias in who got the job.",
   },
   {
     id: 2,
     output: 'An AI image generator asked to show "a scientist" produces 90% male images.',
-    explanation: "Training images over-represented male scientists. The AI learned that 'scientist' is statistically more likely to be male — not because that's true, but because its training data reflected historical gender imbalances in science photography.",
+    question: "What caused the AI to produce mostly male scientist images?",
+    options: [
+      { id: "a", text: "The AI was programmed to prefer male images." },
+      { id: "b", text: "Scientists are actually 90% male in real life." },
+      { id: "c", text: "Training images over-represented male scientists, so the AI learned that 'scientist' statistically means 'male'." },
+      { id: "d", text: "The image quality was better for male faces in the dataset." },
+    ],
+    correctId: "c",
+    explanation: "The AI isn't being deliberately sexist — it learned from photos where male scientists appeared far more often. It's reflecting historical under-representation, not current reality.",
   },
   {
     id: 3,
-    output: 'An AI translation system translates the gender-neutral word for "nurse" and defaults to female pronouns.',
-    explanation: "Language training data reflected cultural stereotypes. The AI learned statistical associations between professions and genders from millions of texts that were written when (and where) those stereotypes were common.",
+    output: 'An AI translation system translates a gender-neutral word for "nurse" and defaults to female pronouns.',
+    question: "Why did the AI assign female pronouns to 'nurse'?",
+    options: [
+      { id: "a", text: "The AI was told nurses are female by its programmers." },
+      { id: "b", text: "Language training data reflected cultural stereotypes — most texts used female pronouns for nurses." },
+      { id: "c", text: "Female pronouns are grammatically more common in all languages." },
+      { id: "d", text: "The AI confused 'nurse' with another word." },
+    ],
+    correctId: "b",
+    explanation: "The AI learned from millions of real texts that were written when gender-role stereotypes were common. It found a statistical pattern (nurse → she) and repeated it — even though that pattern encodes a cultural bias.",
   },
   {
     id: 4,
     output: "An AI content moderator flags significantly more posts from non-native English speakers as potential spam.",
-    explanation: "Training data had limited examples of diverse English writing styles. The AI learned 'normal' English from predominantly native speakers, so it flags unusual grammar or vocabulary patterns — even when the content is completely legitimate.",
+    question: "Why does this AI treat non-native English writers unfairly?",
+    options: [
+      { id: "a", text: "Non-native English speakers actually do post more spam." },
+      { id: "b", text: "The AI was specifically trained to target non-native speakers." },
+      { id: "c", text: "Training data had very few examples of diverse English styles, so the AI flags anything 'different' from standard native-speaker English." },
+      { id: "d", text: "The moderation rules only work in American English." },
+    ],
+    correctId: "c",
+    explanation: "The AI learned what 'normal' looks like from mostly native-speaker text. Unusual grammar or phrasing looks like a red flag — even when the content is perfectly legitimate. This is representation bias: the training data wasn't diverse enough.",
   },
 ];
 
@@ -142,15 +179,13 @@ const CASE_STUDIES = [
 
 function MirrorGame({ onXPEarned, onComplete }: { onXPEarned: (xp: number) => void; onComplete: () => void }) {
   const [answers, setAnswers] = useState<Record<number, boolean>>({});
-  const [revealed, setRevealed] = useState<Record<number, boolean>>({});
   const [done, setDone] = useState(false);
 
-  const handleAnswer = useCallback((scenarioId: number, answer: boolean, correct: boolean) => {
+  const handleAnswer = useCallback((scenarioId: number, answeredFair: boolean) => {
     if (answers[scenarioId] !== undefined) return;
-    setAnswers((prev) => ({ ...prev, [scenarioId]: answer }));
-    setRevealed((prev) => ({ ...prev, [scenarioId]: true }));
+    const newAnswers = { ...answers, [scenarioId]: answeredFair };
+    setAnswers(newAnswers);
     onXPEarned(10);
-    const newAnswers = { ...answers, [scenarioId]: answer };
     if (Object.keys(newAnswers).length === MIRROR_SCENARIOS.length) {
       setTimeout(() => {
         setDone(true);
@@ -167,10 +202,8 @@ function MirrorGame({ onXPEarned, onComplete }: { onXPEarned: (xp: number) => vo
     <div className="space-y-4">
       {MIRROR_SCENARIOS.map((scenario) => {
         const isAnswered = answers[scenario.id] !== undefined;
-        const isRevealed = revealed[scenario.id];
-        const wasCorrect = isAnswered && answers[scenario.id] === !scenario.isFair
-          ? false
-          : isAnswered && answers[scenario.id] === scenario.isFair;
+        const answeredFair = answers[scenario.id];
+        const wasCorrect = isAnswered && answeredFair === scenario.isFair;
 
         return (
           <motion.div
@@ -179,24 +212,32 @@ function MirrorGame({ onXPEarned, onComplete }: { onXPEarned: (xp: number) => vo
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: scenario.id * 0.08 }}
             className={`rounded-xl border p-5 transition-all ${
-              isAnswered
-                ? scenario.isFair
+              !isAnswered
+                ? "border-gray-700 bg-gray-900"
+                : wasCorrect
                   ? "border-teal-600 bg-teal-950/40"
-                  : "border-red-800 bg-red-950/30"
-                : "border-gray-700 bg-gray-900"
+                  : "border-yellow-700 bg-yellow-950/20"
             }`}
           >
-            <p className="text-gray-200 mb-4 text-sm leading-relaxed">{scenario.text}</p>
+            {/* Scenario text + SpeakButton */}
+            <div className="flex items-start gap-3 mb-4">
+              <p className="text-gray-200 text-sm leading-relaxed flex-1">{scenario.text}</p>
+              <div className="shrink-0">
+                <SpeakButton text={scenario.text} theme="teal" size="xs" />
+              </div>
+            </div>
+
+            {/* Buttons or feedback */}
             {!isAnswered ? (
               <div className="flex gap-3">
                 <button
-                  onClick={() => handleAnswer(scenario.id, true, scenario.isFair)}
+                  onClick={() => handleAnswer(scenario.id, true)}
                   className="flex-1 py-2 rounded-lg border border-teal-700 text-teal-300 text-sm font-semibold hover:bg-teal-900/50 transition-all active:scale-95"
                 >
                   ✓ Fair
                 </button>
                 <button
-                  onClick={() => handleAnswer(scenario.id, false, !scenario.isFair)}
+                  onClick={() => handleAnswer(scenario.id, false)}
                   className="flex-1 py-2 rounded-lg border border-red-800 text-red-300 text-sm font-semibold hover:bg-red-950/50 transition-all active:scale-95"
                 >
                   ✗ Unfair
@@ -204,16 +245,28 @@ function MirrorGame({ onXPEarned, onComplete }: { onXPEarned: (xp: number) => vo
               </div>
             ) : (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className={`flex items-center gap-2 text-sm font-semibold ${
-                  scenario.isFair ? "text-teal-400" : "text-red-400"
-                }`}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-2"
               >
-                {scenario.isFair ? "✓ This one is fair!" : "✗ This is unfair."}
-                {answers[scenario.id] === scenario.isFair && (
-                  <span className="text-yellow-400 ml-1">+10 XP ⭐</span>
-                )}
+                {/* Correct / incorrect verdict */}
+                <div className={`flex items-center gap-2 text-sm font-semibold ${
+                  wasCorrect ? "text-teal-400" : "text-yellow-400"
+                }`}>
+                  {wasCorrect
+                    ? (scenario.isFair ? "✓ Correct — this one is fair!" : "✓ Correct — this is unfair!")
+                    : (scenario.isFair ? "Not quite — this one is actually fair." : "Not quite — this is actually unfair.")}
+                  <span className="text-yellow-400">+10 XP ⭐</span>
+                </div>
+                {/* Reason */}
+                <div className="flex items-start gap-2">
+                  <p className="text-gray-400 text-xs leading-relaxed flex-1">
+                    💡 {scenario.reason}
+                  </p>
+                  <div className="shrink-0">
+                    <SpeakButton text={scenario.reason} theme="teal" size="xs" />
+                  </div>
+                </div>
               </motion.div>
             )}
           </motion.div>
@@ -247,19 +300,15 @@ function MirrorGame({ onXPEarned, onComplete }: { onXPEarned: (xp: number) => vo
 // ─── Component: Yr 5-6 Bias Detective ────────────────────────────────────────
 
 function BiasDetective({ onXPEarned, onComplete }: { onXPEarned: (xp: number) => void; onComplete: () => void }) {
-  const [flipped, setFlipped] = useState<Record<number, boolean>>({});
-  const [guesses, setGuesses] = useState<Record<number, string>>({});
+  const [selections, setSelections] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState<Record<number, boolean>>({});
   const [done, setDone] = useState(false);
 
   const handleSubmit = useCallback((scenarioId: number) => {
-    if (submitted[scenarioId]) return;
-    const guess = guesses[scenarioId] ?? "";
-    if (!guess.trim()) return;
-    setSubmitted((prev) => ({ ...prev, [scenarioId]: true }));
-    setFlipped((prev) => ({ ...prev, [scenarioId]: true }));
-    onXPEarned(15);
+    if (submitted[scenarioId] || !selections[scenarioId]) return;
     const newSubmitted = { ...submitted, [scenarioId]: true };
+    setSubmitted(newSubmitted);
+    onXPEarned(15);
     if (Object.keys(newSubmitted).length === DETECTIVE_SCENARIOS.length) {
       setTimeout(() => {
         setDone(true);
@@ -268,13 +317,14 @@ function BiasDetective({ onXPEarned, onComplete }: { onXPEarned: (xp: number) =>
       }, 800);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [submitted, guesses, onXPEarned, onComplete]);
+  }, [submitted, selections, onXPEarned, onComplete]);
 
   return (
     <div className="space-y-6">
       {DETECTIVE_SCENARIOS.map((scenario) => {
-        const isFlipped = flipped[scenario.id];
         const isSubmitted = submitted[scenario.id];
+        const selectedId = selections[scenario.id];
+        const isCorrect = isSubmitted && selectedId === scenario.correctId;
 
         return (
           <motion.div
@@ -284,49 +334,93 @@ function BiasDetective({ onXPEarned, onComplete }: { onXPEarned: (xp: number) =>
             transition={{ delay: scenario.id * 0.1 }}
             className="rounded-xl border border-gray-700 bg-gray-900 overflow-hidden"
           >
-            {/* Front */}
             <div className="p-5">
+              {/* Output header */}
               <p className="text-xs text-teal-400 font-semibold uppercase tracking-widest mb-2">
                 AI Output #{scenario.id}
               </p>
-              <p className="text-gray-200 text-sm leading-relaxed mb-4">{scenario.output}</p>
 
-              {!isSubmitted ? (
-                <>
-                  <label className="block text-gray-400 text-xs mb-2">
-                    Why might the training data have caused this?
-                  </label>
-                  <textarea
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-gray-200 text-sm resize-none focus:outline-none focus:border-teal-600 transition-colors"
-                    rows={3}
-                    placeholder="Type your guess here..."
-                    value={guesses[scenario.id] ?? ""}
-                    onChange={(e) => setGuesses((prev) => ({ ...prev, [scenario.id]: e.target.value }))}
-                  />
-                  <button
-                    onClick={() => handleSubmit(scenario.id)}
-                    disabled={!guesses[scenario.id]?.trim()}
-                    className="mt-3 px-4 py-2 bg-teal-700 hover:bg-teal-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-all active:scale-95"
-                  >
-                    Reveal explanation →
-                  </button>
-                </>
-              ) : null}
+              {/* AI output text + SpeakButton */}
+              <div className="flex items-start gap-3 mb-4">
+                <p className="text-gray-200 text-sm leading-relaxed flex-1">{scenario.output}</p>
+                <div className="shrink-0">
+                  <SpeakButton text={scenario.output} theme="teal" size="xs" />
+                </div>
+              </div>
+
+              {/* Question */}
+              <p className="text-gray-400 text-xs font-semibold mb-3">{scenario.question}</p>
+
+              {/* Multiple choice options */}
+              <div className="space-y-2 mb-4">
+                {scenario.options.map((option) => {
+                  let style = "border-gray-700 text-gray-300 hover:border-gray-600";
+                  if (isSubmitted) {
+                    if (option.id === scenario.correctId) {
+                      style = "border-teal-500 bg-teal-950/50 text-teal-200";
+                    } else if (option.id === selectedId) {
+                      style = "border-red-700 bg-red-950/30 text-red-300";
+                    } else {
+                      style = "border-gray-800 text-gray-600 opacity-50";
+                    }
+                  } else if (option.id === selectedId) {
+                    style = "border-teal-600 bg-teal-950/30 text-teal-200";
+                  }
+
+                  return (
+                    <button
+                      key={option.id}
+                      onClick={() => !isSubmitted && setSelections((prev) => ({ ...prev, [scenario.id]: option.id }))}
+                      disabled={isSubmitted}
+                      className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all ${style} ${isSubmitted ? "cursor-default" : "cursor-pointer"}`}
+                    >
+                      <span className="font-bold mr-2 text-gray-500">{option.id.toUpperCase()}.</span>
+                      {option.text}
+                      {isSubmitted && option.id === scenario.correctId && (
+                        <span className="ml-2 text-teal-400">✓</span>
+                      )}
+                      {isSubmitted && option.id === selectedId && option.id !== scenario.correctId && (
+                        <span className="ml-2 text-red-400">✗</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {!isSubmitted && (
+                <button
+                  onClick={() => handleSubmit(scenario.id)}
+                  disabled={!selectedId}
+                  className="px-4 py-2 bg-teal-700 hover:bg-teal-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-all active:scale-95"
+                >
+                  Check answer →
+                </button>
+              )}
             </div>
 
             {/* Revealed explanation */}
             <AnimatePresence>
-              {isFlipped && (
+              {isSubmitted && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  className="border-t border-teal-800 bg-teal-950/50 px-5 py-4"
+                  className={`border-t px-5 py-4 ${isCorrect ? "border-teal-800 bg-teal-950/50" : "border-yellow-800 bg-yellow-950/20"}`}
                 >
-                  <p className="text-xs text-teal-400 font-semibold uppercase tracking-widest mb-2">
-                    🔍 Bias Explanation
-                  </p>
-                  <p className="text-teal-200 text-sm leading-relaxed">{scenario.explanation}</p>
-                  <p className="text-yellow-400 text-xs mt-2 font-semibold">+15 XP ⭐</p>
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1">
+                      <p className={`text-xs font-semibold uppercase tracking-widest mb-2 ${isCorrect ? "text-teal-400" : "text-yellow-400"}`}>
+                        {isCorrect ? "✓ Correct! — " : "Not quite — "}
+                        🔍 Here&apos;s the explanation
+                      </p>
+                      <p className={`text-sm leading-relaxed ${isCorrect ? "text-teal-200" : "text-yellow-200"}`}>
+                        {scenario.explanation}
+                      </p>
+                      <p className="text-yellow-400 text-xs mt-2 font-semibold">+15 XP ⭐</p>
+                    </div>
+                    <div className="shrink-0">
+                      <SpeakButton text={scenario.explanation} theme="teal" size="xs" />
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -361,11 +455,31 @@ function BiasAuditTool() {
   const fairnessColor = fairnessScore >= 80 ? "text-teal-400" : fairnessScore >= 60 ? "text-yellow-400" : "text-red-400";
   const fairnessLabel = fairnessScore >= 80 ? "Fair" : fairnessScore >= 60 ? "Moderate bias" : "High bias";
 
+  // SVG layout constants — all geometry derived from these so bars and labels always match
+  const SVG_W = 400;
+  const SVG_H = 180;
+  const CHART_LEFT = 44;   // left edge of chart area (after y-axis labels)
+  const CHART_RIGHT = 380;
+  const CHART_TOP = 12;    // top of chart area
+  const CHART_BOTTOM = 145; // baseline of bars (above group labels)
+  const CHART_H = CHART_BOTTOM - CHART_TOP; // 133px usable height
+  const BAR_W = 70;
+
+  // Bar x-centres
+  const BAR_A_X = CHART_LEFT + (CHART_RIGHT - CHART_LEFT) * 0.28;
+  const BAR_B_X = CHART_LEFT + (CHART_RIGHT - CHART_LEFT) * 0.72;
+
+  // Convert a 0-100% accuracy value to a y-coordinate (higher % = smaller y = higher on screen)
+  const toY = (pct: number) => CHART_BOTTOM - (pct / 100) * CHART_H;
+
+  // Grid line percentages
+  const gridLines = [25, 50, 75, 100];
+
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
       <h3 className="text-base font-semibold text-white mb-1">⚙️ Adjust Training Data</h3>
       <p className="text-gray-400 text-sm mb-6">
-        Drag the slider to change how much training data comes from each group. 
+        Drag the slider to change how much training data comes from each group.
         See how it affects the AI&apos;s accuracy for each group.
       </p>
 
@@ -385,55 +499,122 @@ function BiasAuditTool() {
           className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500"
         />
         <div className="flex justify-between mt-1">
-          <span className="text-xs text-gray-600">More B data</span>
-          <span className="text-xs text-gray-600">More A data</span>
+          <span className="text-xs text-gray-600">← More B data</span>
+          <span className="text-xs text-gray-600">More A data →</span>
         </div>
       </div>
 
-      {/* SVG Visualisation */}
+      {/* SVG Chart */}
       <div className="mb-6">
-        <svg width="100%" viewBox="0 0 400 160" className="rounded-lg overflow-hidden">
+        <svg width="100%" viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="rounded-lg overflow-visible">
           {/* Background */}
-          <rect width="400" height="160" fill="#111827" rx="8" />
+          <rect width={SVG_W} height={SVG_H} fill="#111827" rx="8" />
 
-          {/* Grid lines */}
-          {[25, 50, 75, 100].map((pct) => (
-            <g key={pct}>
-              <line x1={40} y1={140 - pct * 1.1} x2={380} y2={140 - pct * 1.1} stroke="#374151" strokeWidth="0.5" strokeDasharray="4,4" />
-              <text x={34} y={144 - pct * 1.1} fill="#6b7280" fontSize="9" textAnchor="end">{pct}%</text>
-            </g>
-          ))}
+          {/* Grid lines + y-axis labels */}
+          {gridLines.map((pct) => {
+            const gy = toY(pct);
+            return (
+              <g key={pct}>
+                <line
+                  x1={CHART_LEFT} y1={gy}
+                  x2={CHART_RIGHT} y2={gy}
+                  stroke="#374151" strokeWidth="0.5" strokeDasharray="4,4"
+                />
+                <text
+                  x={CHART_LEFT - 4} y={gy + 3.5}
+                  fill="#6b7280" fontSize="9" textAnchor="end"
+                >
+                  {pct}%
+                </text>
+              </g>
+            );
+          })}
 
-          {/* Axis label */}
-          <text x={210} y={156} fill="#6b7280" fontSize="9" textAnchor="middle">Accuracy</text>
+          {/* Baseline */}
+          <line x1={CHART_LEFT} y1={CHART_BOTTOM} x2={CHART_RIGHT} y2={CHART_BOTTOM} stroke="#374151" strokeWidth="1" />
 
           {/* Group A bar */}
-          <motion.rect
-            x={80}
-            y={140 - accA * 1.1}
-            width={80}
-            height={accA * 1.1}
-            fill="#14b8a6"
-            rx="4"
-            animate={{ y: 140 - accA * 1.1, height: accA * 1.1 }}
-            transition={{ type: "spring", stiffness: 200 }}
-          />
-          <text x={120} y={134 - accA * 1.1} fill="#5eead4" fontSize="11" textAnchor="middle" fontWeight="bold">{accA}%</text>
-          <text x={120} y={150} fill="#5eead4" fontSize="10" textAnchor="middle">Group A</text>
+          {(() => {
+            const barTop = toY(accA);
+            const barH = CHART_BOTTOM - barTop;
+            return (
+              <g>
+                <motion.rect
+                  x={BAR_A_X - BAR_W / 2}
+                  y={barTop}
+                  width={BAR_W}
+                  height={barH}
+                  fill="#14b8a6"
+                  rx="4"
+                  animate={{ y: barTop, height: barH }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                />
+                {/* Accuracy label — 14px above bar top */}
+                <motion.text
+                  x={BAR_A_X}
+                  y={barTop - 6}
+                  fill="#5eead4"
+                  fontSize="12"
+                  fontWeight="bold"
+                  textAnchor="middle"
+                  animate={{ y: barTop - 6 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                >
+                  {accA}%
+                </motion.text>
+                {/* Group label — below baseline */}
+                <text x={BAR_A_X} y={CHART_BOTTOM + 14} fill="#5eead4" fontSize="11" textAnchor="middle" fontWeight="600">
+                  Group A
+                </text>
+              </g>
+            );
+          })()}
 
           {/* Group B bar */}
-          <motion.rect
-            x={240}
-            y={140 - accB * 1.1}
-            width={80}
-            height={accB * 1.1}
-            fill="#f97316"
-            rx="4"
-            animate={{ y: 140 - accB * 1.1, height: accB * 1.1 }}
-            transition={{ type: "spring", stiffness: 200 }}
-          />
-          <text x={280} y={134 - accB * 1.1} fill="#fdba74" fontSize="11" textAnchor="middle" fontWeight="bold">{accB}%</text>
-          <text x={280} y={150} fill="#fdba74" fontSize="10" textAnchor="middle">Group B</text>
+          {(() => {
+            const barTop = toY(accB);
+            const barH = CHART_BOTTOM - barTop;
+            return (
+              <g>
+                <motion.rect
+                  x={BAR_B_X - BAR_W / 2}
+                  y={barTop}
+                  width={BAR_W}
+                  height={barH}
+                  fill="#f97316"
+                  rx="4"
+                  animate={{ y: barTop, height: barH }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                />
+                {/* Accuracy label — 14px above bar top */}
+                <motion.text
+                  x={BAR_B_X}
+                  y={barTop - 6}
+                  fill="#fdba74"
+                  fontSize="12"
+                  fontWeight="bold"
+                  textAnchor="middle"
+                  animate={{ y: barTop - 6 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                >
+                  {accB}%
+                </motion.text>
+                {/* Group label — below baseline */}
+                <text x={BAR_B_X} y={CHART_BOTTOM + 14} fill="#fdba74" fontSize="11" textAnchor="middle" fontWeight="600">
+                  Group B
+                </text>
+              </g>
+            );
+          })()}
+
+          {/* Y-axis title */}
+          <text
+            x={8} y={CHART_TOP + CHART_H / 2}
+            fill="#6b7280" fontSize="9" textAnchor="middle"
+            transform={`rotate(-90, 8, ${CHART_TOP + CHART_H / 2})`}
+          >
+            Accuracy
+          </text>
         </svg>
       </div>
 
