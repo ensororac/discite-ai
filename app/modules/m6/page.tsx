@@ -116,13 +116,16 @@ const DETECTIVE_SCENARIOS = [
 
 // ─── Yr 7-8: Bias Audit Tool simulation data ─────────────────────────────────
 
-// Pre-computed simulation: slider = % data from Group A (0-100)
-// accA and accB are accuracy percentages for each group
+// Pre-computed simulation: slider = % of training data from Group A (5–95)
+// At 50/50 both groups get equal accuracy (~75%).
+// As Group A's share increases, Group A accuracy rises toward 92%, Group B falls toward 38%.
+// Formula: accA = 75 + (sliderA - 50) * 0.34  (range ~58% at 5% → ~92% at 95%)
+//          accB = 75 - (sliderA - 50) * 0.74  (range ~92% at 5% → ~38% at 95%)
+// The asymmetry in slope reflects that under-representation hurts more than over-representation helps.
 function getAuditData(sliderA: number) {
-  // As Group A data increases, Group A accuracy rises, Group B accuracy falls
-  // At 50/50 they're roughly equal
-  const accA = Math.round(45 + (sliderA / 100) * 45); // 45% → 90%
-  const accB = Math.round(90 - (sliderA / 100) * 45); // 90% → 45%
+  const delta = sliderA - 50; // −45 to +45
+  const accA = Math.min(99, Math.max(10, Math.round(75 + delta * 0.38)));
+  const accB = Math.min(99, Math.max(10, Math.round(75 - delta * 0.82)));
   const fairnessScore = Math.round(100 - Math.abs(accA - accB));
   return { accA, accB, fairnessScore };
 }
@@ -457,20 +460,23 @@ function BiasAuditTool() {
 
   // SVG layout constants — all geometry derived from these so bars and labels always match
   const SVG_W = 400;
-  const SVG_H = 180;
-  const CHART_LEFT = 44;   // left edge of chart area (after y-axis labels)
-  const CHART_RIGHT = 380;
-  const CHART_TOP = 12;    // top of chart area
-  const CHART_BOTTOM = 145; // baseline of bars (above group labels)
-  const CHART_H = CHART_BOTTOM - CHART_TOP; // 133px usable height
-  const BAR_W = 70;
+  const SVG_H = 200;
+  const CHART_LEFT = 44;    // left edge of chart area (after y-axis labels)
+  const CHART_RIGHT = 376;
+  const CHART_TOP = 24;     // top of chart area — enough room for value labels above tallest bar
+  const CHART_BOTTOM = 158; // baseline — bars sit exactly on this line
+  const CHART_H = CHART_BOTTOM - CHART_TOP; // 134px usable height
+  const BAR_W = 72;
 
-  // Bar x-centres
+  // Bar x-centres (evenly placed in chart area)
   const BAR_A_X = CHART_LEFT + (CHART_RIGHT - CHART_LEFT) * 0.28;
   const BAR_B_X = CHART_LEFT + (CHART_RIGHT - CHART_LEFT) * 0.72;
 
-  // Convert a 0-100% accuracy value to a y-coordinate (higher % = smaller y = higher on screen)
+  // Convert 0–100% to SVG y-coordinate. 100% maps to CHART_TOP, 0% maps to CHART_BOTTOM.
   const toY = (pct: number) => CHART_BOTTOM - (pct / 100) * CHART_H;
+
+  // Label y: 10px above bar top, clamped so it never goes above CHART_TOP+10
+  const labelY = (pct: number) => Math.max(CHART_TOP + 10, toY(pct) - 6);
 
   // Grid line percentages
   const gridLines = [25, 50, 75, 100];
@@ -506,7 +512,7 @@ function BiasAuditTool() {
 
       {/* SVG Chart */}
       <div className="mb-6">
-        <svg width="100%" viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="rounded-lg overflow-visible">
+        <svg width="100%" viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="rounded-lg overflow-hidden">
           {/* Background */}
           <rect width={SVG_W} height={SVG_H} fill="#111827" rx="8" />
 
@@ -537,6 +543,7 @@ function BiasAuditTool() {
           {(() => {
             const barTop = toY(accA);
             const barH = CHART_BOTTOM - barTop;
+            const lblY = labelY(accA);
             return (
               <g>
                 <motion.rect
@@ -549,21 +556,21 @@ function BiasAuditTool() {
                   animate={{ y: barTop, height: barH }}
                   transition={{ type: "spring", stiffness: 200, damping: 20 }}
                 />
-                {/* Accuracy label — 14px above bar top */}
+                {/* Accuracy label — above bar, clamped inside SVG */}
                 <motion.text
                   x={BAR_A_X}
-                  y={barTop - 6}
+                  y={lblY}
                   fill="#5eead4"
                   fontSize="12"
                   fontWeight="bold"
                   textAnchor="middle"
-                  animate={{ y: barTop - 6 }}
+                  animate={{ y: lblY }}
                   transition={{ type: "spring", stiffness: 200, damping: 20 }}
                 >
                   {accA}%
                 </motion.text>
                 {/* Group label — below baseline */}
-                <text x={BAR_A_X} y={CHART_BOTTOM + 14} fill="#5eead4" fontSize="11" textAnchor="middle" fontWeight="600">
+                <text x={BAR_A_X} y={CHART_BOTTOM + 16} fill="#5eead4" fontSize="11" textAnchor="middle" fontWeight="600">
                   Group A
                 </text>
               </g>
@@ -574,6 +581,7 @@ function BiasAuditTool() {
           {(() => {
             const barTop = toY(accB);
             const barH = CHART_BOTTOM - barTop;
+            const lblY = labelY(accB);
             return (
               <g>
                 <motion.rect
@@ -586,21 +594,21 @@ function BiasAuditTool() {
                   animate={{ y: barTop, height: barH }}
                   transition={{ type: "spring", stiffness: 200, damping: 20 }}
                 />
-                {/* Accuracy label — 14px above bar top */}
+                {/* Accuracy label — above bar, clamped inside SVG */}
                 <motion.text
                   x={BAR_B_X}
-                  y={barTop - 6}
+                  y={lblY}
                   fill="#fdba74"
                   fontSize="12"
                   fontWeight="bold"
                   textAnchor="middle"
-                  animate={{ y: barTop - 6 }}
+                  animate={{ y: lblY }}
                   transition={{ type: "spring", stiffness: 200, damping: 20 }}
                 >
                   {accB}%
                 </motion.text>
                 {/* Group label — below baseline */}
-                <text x={BAR_B_X} y={CHART_BOTTOM + 14} fill="#fdba74" fontSize="11" textAnchor="middle" fontWeight="600">
+                <text x={BAR_B_X} y={CHART_BOTTOM + 16} fill="#fdba74" fontSize="11" textAnchor="middle" fontWeight="600">
                   Group B
                 </text>
               </g>
