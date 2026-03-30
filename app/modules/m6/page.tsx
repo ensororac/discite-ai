@@ -458,24 +458,26 @@ function BiasAuditTool() {
   const fairnessColor = fairnessScore >= 80 ? "text-teal-400" : fairnessScore >= 60 ? "text-yellow-400" : "text-red-400";
   const fairnessLabel = fairnessScore >= 80 ? "Fair" : fairnessScore >= 60 ? "Moderate bias" : "High bias";
 
-  // SVG layout constants — all geometry derived from these so bars and labels always match
+  // SVG layout constants
+  // Chart occupies the full SVG height minus small top/bottom margins.
+  // Group name labels are placed OUTSIDE the SVG in HTML, not inside — so no dead space below.
   const SVG_W = 400;
   const SVG_H = 200;
-  const CHART_LEFT = 44;    // left edge of chart area (after y-axis labels)
+  const CHART_LEFT = 44;   // space for y-axis labels
   const CHART_RIGHT = 376;
-  const CHART_TOP = 24;     // top of chart area — enough room for value labels above tallest bar
-  const CHART_BOTTOM = 158; // baseline — bars sit exactly on this line
-  const CHART_H = CHART_BOTTOM - CHART_TOP; // 134px usable height
+  const CHART_TOP = 20;    // top margin — room for value label above 100% bar
+  const CHART_BOTTOM = 188; // baseline — close to SVG bottom edge
+  const CHART_H = CHART_BOTTOM - CHART_TOP; // 168px — nearly full height
   const BAR_W = 72;
 
-  // Bar x-centres (evenly placed in chart area)
+  // Bar x-centres
   const BAR_A_X = CHART_LEFT + (CHART_RIGHT - CHART_LEFT) * 0.28;
   const BAR_B_X = CHART_LEFT + (CHART_RIGHT - CHART_LEFT) * 0.72;
 
-  // Convert 0–100% to SVG y-coordinate. 100% maps to CHART_TOP, 0% maps to CHART_BOTTOM.
+  // Convert 0–100% to SVG y. 100% → CHART_TOP, 0% → CHART_BOTTOM.
   const toY = (pct: number) => CHART_BOTTOM - (pct / 100) * CHART_H;
 
-  // Label y: 10px above bar top, clamped so it never goes above CHART_TOP+10
+  // Value label y: 10px above bar top, clamped inside SVG
   const labelY = (pct: number) => Math.max(CHART_TOP + 10, toY(pct) - 6);
 
   // Grid line percentages
@@ -516,7 +518,7 @@ function BiasAuditTool() {
           {/* Background */}
           <rect width={SVG_W} height={SVG_H} fill="#111827" rx="8" />
 
-          {/* Grid lines + y-axis labels */}
+          {/* Grid lines + y-axis labels — label centred on its gridline */}
           {gridLines.map((pct) => {
             const gy = toY(pct);
             return (
@@ -526,9 +528,11 @@ function BiasAuditTool() {
                   x2={CHART_RIGHT} y2={gy}
                   stroke="#374151" strokeWidth="0.5" strokeDasharray="4,4"
                 />
+                {/* dominantBaseline="middle" centres text vertically on the gridline */}
                 <text
-                  x={CHART_LEFT - 4} y={gy + 3.5}
+                  x={CHART_LEFT - 5} y={gy}
                   fill="#6b7280" fontSize="9" textAnchor="end"
+                  dominantBaseline="middle"
                 >
                   {pct}%
                 </text>
@@ -536,8 +540,8 @@ function BiasAuditTool() {
             );
           })}
 
-          {/* Baseline */}
-          <line x1={CHART_LEFT} y1={CHART_BOTTOM} x2={CHART_RIGHT} y2={CHART_BOTTOM} stroke="#374151" strokeWidth="1" />
+          {/* Baseline (0%) */}
+          <line x1={CHART_LEFT} y1={CHART_BOTTOM} x2={CHART_RIGHT} y2={CHART_BOTTOM} stroke="#4b5563" strokeWidth="1" />
 
           {/* Group A bar */}
           {(() => {
@@ -569,10 +573,6 @@ function BiasAuditTool() {
                 >
                   {accA}%
                 </motion.text>
-                {/* Group label — below baseline */}
-                <text x={BAR_A_X} y={CHART_BOTTOM + 16} fill="#5eead4" fontSize="11" textAnchor="middle" fontWeight="600">
-                  Group A
-                </text>
               </g>
             );
           })()}
@@ -607,23 +607,26 @@ function BiasAuditTool() {
                 >
                   {accB}%
                 </motion.text>
-                {/* Group label — below baseline */}
-                <text x={BAR_B_X} y={CHART_BOTTOM + 16} fill="#fdba74" fontSize="11" textAnchor="middle" fontWeight="600">
-                  Group B
-                </text>
               </g>
             );
           })()}
 
-          {/* Y-axis title */}
+          {/* Y-axis title (rotated) */}
           <text
             x={8} y={CHART_TOP + CHART_H / 2}
             fill="#6b7280" fontSize="9" textAnchor="middle"
+            dominantBaseline="middle"
             transform={`rotate(-90, 8, ${CHART_TOP + CHART_H / 2})`}
           >
-            Accuracy
+            Accuracy %
           </text>
         </svg>
+
+        {/* Group name labels in HTML — positioned to match bar x-centres */}
+        <div className="flex mt-1" style={{ paddingLeft: `${(BAR_A_X / SVG_W) * 100}%` }}>
+          <span className="text-xs font-semibold text-teal-400" style={{ transform: "translateX(-50%)" }}>Group A</span>
+          <span className="text-xs font-semibold text-orange-400" style={{ marginLeft: `${((BAR_B_X - BAR_A_X) / SVG_W) * 100}%`, transform: "translateX(-50%)" }}>Group B</span>
+        </div>
       </div>
 
       {/* Fairness Score */}
