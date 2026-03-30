@@ -543,36 +543,34 @@ function BiasAuditTool() {
           {/* Baseline (0%) */}
           <line x1={CHART_LEFT} y1={CHART_BOTTOM} x2={CHART_RIGHT} y2={CHART_BOTTOM} stroke="#4b5563" strokeWidth="1" />
 
-          {/* Group A bar */}
+          {/* Group A bar — plain SVG rect with CSS transition (framer-motion conflicts with SVG y/height attributes) */}
           {(() => {
             const barTop = toY(accA);
             const barH = CHART_BOTTOM - barTop;
             const lblY = labelY(accA);
             return (
               <g>
-                <motion.rect
+                <rect
                   x={BAR_A_X - BAR_W / 2}
                   y={barTop}
                   width={BAR_W}
                   height={barH}
                   fill="#14b8a6"
                   rx="4"
-                  animate={{ y: barTop, height: barH }}
-                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  style={{ transition: "y 0.4s ease, height 0.4s ease" }}
                 />
-                {/* Accuracy label — above bar, clamped inside SVG */}
-                <motion.text
+                <text
                   x={BAR_A_X}
                   y={lblY}
                   fill="#5eead4"
                   fontSize="12"
                   fontWeight="bold"
                   textAnchor="middle"
-                  animate={{ y: lblY }}
-                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  dominantBaseline="auto"
+                  style={{ transition: "y 0.4s ease" }}
                 >
                   {accA}%
-                </motion.text>
+                </text>
               </g>
             );
           })()}
@@ -584,29 +582,27 @@ function BiasAuditTool() {
             const lblY = labelY(accB);
             return (
               <g>
-                <motion.rect
+                <rect
                   x={BAR_B_X - BAR_W / 2}
                   y={barTop}
                   width={BAR_W}
                   height={barH}
                   fill="#f97316"
                   rx="4"
-                  animate={{ y: barTop, height: barH }}
-                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  style={{ transition: "y 0.4s ease, height 0.4s ease" }}
                 />
-                {/* Accuracy label — above bar, clamped inside SVG */}
-                <motion.text
+                <text
                   x={BAR_B_X}
                   y={lblY}
                   fill="#fdba74"
                   fontSize="12"
                   fontWeight="bold"
                   textAnchor="middle"
-                  animate={{ y: lblY }}
-                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  dominantBaseline="auto"
+                  style={{ transition: "y 0.4s ease" }}
                 >
                   {accB}%
-                </motion.text>
+                </text>
               </g>
             );
           })()}
